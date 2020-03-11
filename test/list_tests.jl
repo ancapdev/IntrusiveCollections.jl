@@ -6,7 +6,7 @@
 end
 
 @testset "modifiers" begin
-    # push!, pop!, pushfirst!, popfirst!, empty!
+    # TODO: empty!, append!, prepend!
     list = IntrusiveList{IntrusiveListNode{Int}}()
     n1 = IntrusiveListNode(1)
     pushfirst!(list, n1)
@@ -35,7 +35,7 @@ end
 end
 
 @testset "accessors" begin
-    # eltype, isempty, length, in, indexin, first, last, append, prepend
+    # TODO: isempty, length, in, indexin, first, last
     @test eltype(IntrusiveList{IntrusiveListNode{Int64}}) == IntrusiveListNode{Int64}
 
 end

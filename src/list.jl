@@ -74,7 +74,6 @@ end
     x === list.root ? nothing : (x, x)
 end
 
-
 function Base.push!(list::TaggedIntrusiveList{T, Tag}, node::T) where {T, Tag}
     if isempty(list)
         setnextprevself!(node, Tag)
