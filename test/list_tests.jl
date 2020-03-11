@@ -59,13 +59,7 @@ end
     end
 end
 
-
-@testset "initial state" begin
-    list = IntrusiveList{IntrusiveListNode{Int64}}()
-    @test isempty(list)
-end
-
-@testset "modifiers" begin
+@testset "push and pop" begin
     # TODO: empty!, append!, prepend!
     list = IntrusiveList{IntrusiveListNode{Int}}()
     n1 = IntrusiveListNode(1)
@@ -93,6 +87,45 @@ end
     @test pop!(list) === n1
     @test isempty(list)
     @test_throws ArgumentError pop!(list)
+end
+
+@testset "empty" begin
+    list = IntrusiveList{IntrusiveListNode{Int}}()
+    @test isempty(list)
+    push!(list, IntrusiveListNode(1))
+    @test !isempty(list)
+    empty!(list)
+    @test isempty(list)
+end
+
+@testset "length" begin
+    list = IntrusiveList{IntrusiveListNode{Int}}()
+    @test length(list) == 0
+    push!(list, IntrusiveListNode(1))
+    @test length(list) == 1
+    push!(list, IntrusiveListNode(2))
+    @test length(list) == 2
+    pop!(list)
+    @test length(list) == 1
+end
+
+@testset "splice" begin
+    list = IntrusiveList{IntrusiveListNode{Int}}()
+    n1 = IntrusiveListNode(1)
+    n2 = IntrusiveListNode(2)
+    n3 = IntrusiveListNode(3)
+    push!(list, n1)
+    splice!(list, n1)
+    @test isempty(list)
+    push!(list, n1, n2)
+    splice!(list, n1)
+    @test all([x for x in list] .=== [n2])
+    pushfirst!(list, n1)
+    splice!(list, n2)
+    @test all([x for x in list] .=== [n1])
+    push!(list, n2, n3)
+    splice!(list, n2)
+    @test all([x for x in list] .=== [n1, n3])
 end
 
 @testset "accessors" begin

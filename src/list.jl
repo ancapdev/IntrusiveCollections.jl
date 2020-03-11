@@ -111,3 +111,15 @@ function Base.popfirst!(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
     list.root = root === new_root ? nothing : new_root
     root
 end
+
+function Base.splice!(list::TaggedIntrusiveList{T, Tag}, at::T) where {T, Tag}
+    at_next = circlist_unlink!(at, Tag)
+    if at === list.root
+        if at_next === at
+            list.root = nothing
+        else
+            list.root = at_next
+        end
+    end
+    list
+end
