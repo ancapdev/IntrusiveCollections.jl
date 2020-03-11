@@ -21,7 +21,17 @@ end
     @test all([x for x in list] .=== [n1])
     @test popfirst!(list) === n1
     @test isempty(list)
-    
+    push!(list, n1)
+    @test !isempty(list)
+    @test all([x for x in list] .=== [n1])
+    push!(list, n2)
+    @test !isempty(list)
+    @test all([x for x in list] .=== [n1, n2])
+    @test pop!(list) === n2
+    @test !isempty(list)
+    @test all([x for x in list] .=== [n1])
+    @test pop!(list) === n1
+    @test isempty(list)
 end
 
 @testset "accessors" begin
