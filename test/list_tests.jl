@@ -1,5 +1,65 @@
 @testset "IntrusiveList" begin
 
+mutable struct MultiTagListNode
+    value::Int64
+    next_a::MultiTagListNode
+    prev_a::MultiTagListNode
+    next_b::MultiTagListNode
+    prev_b::MultiTagListNode
+
+    function MultiTagListNode(value)
+        x = new(value)
+        x.next_a = x
+        x.prev_a = x
+        x.next_b = x
+        x.prev_b = x
+        x
+    end
+end
+
+@inline function IntrusiveCollections.setnext!(x::MultiTagListNode, next::MultiTagListNode, tag::Symbol)
+    if tag == :a
+        x.next_a = next
+    elseif tag == :b
+        x.next_b = next
+    else
+        throw(ArgumentError("Tag must be :a or :b"))
+    end
+    nothing
+end
+
+@inline function IntrusiveCollections.setprev!(x::MultiTagListNode, prev::MultiTagListNode, tag::Symbol)
+    if tag == :a
+        x.prev_a = prev
+    elseif tag == :b
+        x.prev_b = prev
+    else
+        throw(ArgumentError("Tag must be :a or :b"))
+    end
+    nothing
+end
+
+@inline function IntrusiveCollections.getnext(x::MultiTagListNode, tag::Symbol)
+    if tag == :a
+        return x.next_a
+    elseif tag == :b
+        return x.next_b
+    else
+        throw(ArgumentError("Tag must be :a or :b"))
+    end
+end
+
+@inline function IntrusiveCollections.getprev(x::MultiTagListNode, tag::Symbol)
+    if tag == :a
+        return x.prev_a
+    elseif tag == :b
+        return x.prev_b
+    else
+        throw(ArgumentError("Tag must be :a or :b"))
+    end
+end
+
+
 @testset "initial state" begin
     list = IntrusiveList{IntrusiveListNode{Int64}}()
     @test isempty(list)
@@ -32,6 +92,7 @@ end
     @test all([x for x in list] .=== [n1])
     @test pop!(list) === n1
     @test isempty(list)
+    @test_throws ArgumentError pop!(list)
 end
 
 @testset "accessors" begin
@@ -54,6 +115,36 @@ end
 end
 
 @testset "tags" begin
+    a = TaggedIntrusiveList{MultiTagListNode, :a}()
+    b = TaggedIntrusiveList{MultiTagListNode, :b}()
+    n1 = MultiTagListNode(1)
+    n2 = MultiTagListNode(2)
+    n3 = MultiTagListNode(3)
+    push!(a, n1)
+    @test !isempty(a)
+    @test isempty(b)
+    @test all([x for x in a] .=== [n1])
+    push!(b, n2)
+    @test !isempty(a)
+    @test !isempty(b)
+    @test all([x for x in a] .=== [n1])
+    @test all([x for x in b] .=== [n2])
+    push!(a, n3)
+    @test !isempty(a)
+    @test !isempty(b)
+    @test all([x for x in a] .=== [n1, n3])
+    @test all([x for x in b] .=== [n2])
+    @test pop!(b) === n2
+    @test !isempty(a)
+    @test isempty(b)
+    @test all([x for x in a] .=== [n1, n3])
+    @test pop!(a) === n3
+    @test !isempty(a)
+    @test isempty(b)
+    @test all([x for x in a] .=== [n1])
+    @test pop!(a) === n1
+    @test isempty(a)
+    @test isempty(b)
 end
 
 @testset "output" begin

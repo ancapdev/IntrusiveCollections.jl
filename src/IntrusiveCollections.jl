@@ -1,6 +1,6 @@
 module IntrusiveCollections
 
-export IntrusiveList, IntrusiveListNode
+export TaggedIntrusiveList, IntrusiveList, IntrusiveListNode
 
 include("list.jl")
 
