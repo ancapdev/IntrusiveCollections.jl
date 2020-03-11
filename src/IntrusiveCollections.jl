@@ -1,5 +1,7 @@
 module IntrusiveCollections
 
-greet() = print("Hello World!")
+export IntrusiveList, IntrusiveListNode
 
-end # module
+include("list.jl")
+
+end
