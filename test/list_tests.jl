@@ -132,6 +132,17 @@ end
     # TODO: isempty, length, in, indexin, first, last
     @test eltype(IntrusiveList{IntrusiveListNode{Int64}}) == IntrusiveListNode{Int64}
 
+    list = IntrusiveList{IntrusiveListNode{Int}}()
+    n1 = IntrusiveListNode(1)
+    n2 = IntrusiveListNode(2)
+    @test_throws BoundsError first(list)
+    @test_throws BoundsError last(list)
+    push!(list, n1)
+    @test first(list) === n1
+    @test last(list) === n1
+    push!(list, n2)
+    @test first(list) === n1
+    @test last(list) === n2
 end
 
 # getindex, setindex!, lastindex, insert!, deleteat!, splice!

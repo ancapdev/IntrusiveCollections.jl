@@ -50,6 +50,10 @@ end
 
 const IntrusiveList{T} = TaggedIntrusiveList{T, :default}
 
+@inline function checkbounds(list::IntrusiveList)
+    isempty(list) && throw(BoundsError(list))
+end
+
 Base.eltype(::Type{TaggedIntrusiveList{T, Tag}}) where {T, Tag} = T
 
 @inline Base.isempty(list::TaggedIntrusiveList) = isnothing(list.root)
@@ -73,6 +77,17 @@ end
     x = getnext(state, Tag)::T
     x === list.root ? nothing : (x, x)
 end
+
+@inline function Base.first(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
+    @boundscheck checkbounds(list)
+    list.root::T
+end
+
+@inline function Base.last(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
+    @boundscheck checkbounds(list)
+    getprev(list.root::T, Tag)::T
+end
+
 
 function Base.push!(list::TaggedIntrusiveList{T, Tag}, node::T) where {T, Tag}
     if isempty(list)
