@@ -6,10 +6,10 @@ mutable struct IntrusiveListNode{T}
     IntrusiveListNode(value::T) where {T} = new{T}(nothing, nothing, value)
 end
 
-getnext(x::IntrusiveListNode, tag::Symbol) = x.next
-getprev(x::IntrusiveListNode, tag::Symbol) = x.prev
-setnext!(x::IntrusiveListNode{T}, next::Union{IntrusiveListNode{T}, Nothing}, tag::Symbol) where {T} = x.next = next
-setprev!(x::IntrusiveListNode{T}, prev::Union{IntrusiveListNode{T}, Nothing}, tag::Symbol) where {T} = x.prev = prev
+@inline getnext(x::IntrusiveListNode, tag::Symbol) = x.next
+@inline getprev(x::IntrusiveListNode, tag::Symbol) = x.prev
+@inline setnext!(x::IntrusiveListNode{T}, next::Union{IntrusiveListNode{T}, Nothing}, tag::Symbol) where {T} = x.next = next
+@inline setprev!(x::IntrusiveListNode{T}, prev::Union{IntrusiveListNode{T}, Nothing}, tag::Symbol) where {T} = x.prev = prev
 
 # TODO: constant time first and last
 # TODO: iterators
@@ -27,11 +27,12 @@ function Base.pushfirst!(list::TaggedIntrusiveList{T, Tag}, node::T) where {T, T
         setnext!(node, node, Tag)
         setprev!(node, node, Tag)
     else
-        tail = getprev(list.root, Tag)
+        root = list.root::T
+        tail = getprev(root, Tag)::T
         setnext!(tail, node, Tag)
         setprev!(node, tail, Tag)
-        setnext!(node, list.root, Tag)
-        setprev!(list.root, node, Tag)
+        setnext!(node, root, Tag)
+        setprev!(root, node, Tag)
     end
     list.root = node
     list
@@ -40,11 +41,11 @@ end
 function Base.popfirst!(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
     isempty(list) && throw(ArgumentError("list must be non-empty"))
     x = list.root::T
-    next = getnext(x, Tag)
+    next = getnext(x, Tag)::T
     if next === x
         list.root = nothing
     else
-        prev = getprev(x, Tag)
+        prev = getprev(x, Tag)::T
         setprev!(next, prev, Tag)
         setnext!(prev, next, Tag)
         list.root = next
