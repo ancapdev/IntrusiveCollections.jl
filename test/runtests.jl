@@ -2,5 +2,5 @@ using IntrusiveCollections
 using Test
 
 @testset "IntrusiveCollections.jl" begin
-    # Write your own tests here.
+    include("list_tests.jl")
 end
