@@ -59,14 +59,20 @@ end
     end
 end
 
-@testset "push and pop" begin
+list_types = [
+    IntrusiveList{IntrusiveListNode{Int}},
+    IntrusiveSList{IntrusiveSListNode{Int}}
+]
+
+@testset "push and pop $ListType" for ListType in list_types
     # TODO: empty!, append!, prepend!
-    list = IntrusiveList{IntrusiveListNode{Int}}()
-    n1 = IntrusiveListNode(1)
+    NodeType = eltype(ListType)
+    list = ListType()
+    n1 = NodeType(1)
     pushfirst!(list, n1)
     @test !isempty(list)
     @test all([x for x in list] .=== [n1])
-    n2 = IntrusiveListNode(2)
+    n2 = NodeType(2)
     pushfirst!(list, n2)
     @test !isempty(list)
     @test all([x for x in list] .=== [n2, n1])
@@ -89,52 +95,57 @@ end
     @test_throws ArgumentError pop!(list)
 end
 
-@testset "empty" begin
-    list = IntrusiveList{IntrusiveListNode{Int}}()
+@testset "empty $ListType" for ListType in list_types
+    list = ListType()
     @test isempty(list)
-    push!(list, IntrusiveListNode(1))
+    push!(list, eltype(ListType)(1))
     @test !isempty(list)
     empty!(list)
     @test isempty(list)
 end
 
-@testset "length" begin
-    list = IntrusiveList{IntrusiveListNode{Int}}()
+@testset "length $ListType" for ListType in list_types
+    NodeType = eltype(ListType)
+    list = ListType()
     @test length(list) == 0
-    push!(list, IntrusiveListNode(1))
+    push!(list, NodeType(1))
     @test length(list) == 1
-    push!(list, IntrusiveListNode(2))
+    push!(list, NodeType(2))
     @test length(list) == 2
     pop!(list)
     @test length(list) == 1
 end
 
-@testset "splice" begin
-    list = IntrusiveList{IntrusiveListNode{Int}}()
-    n1 = IntrusiveListNode(1)
-    n2 = IntrusiveListNode(2)
-    n3 = IntrusiveListNode(3)
+@testset "delete $ListType" for ListType in list_types
+    NodeType = eltype(ListType)
+    list = ListType()
+    n1 = NodeType(1)
+    n2 = NodeType(2)
+    n3 = NodeType(3)
     push!(list, n1)
-    splice!(list, n1)
+    delete!(list, n1)
     @test isempty(list)
     push!(list, n1, n2)
-    splice!(list, n1)
+    delete!(list, n1)
     @test all([x for x in list] .=== [n2])
     pushfirst!(list, n1)
-    splice!(list, n2)
+    delete!(list, n2)
     @test all([x for x in list] .=== [n1])
-    push!(list, n2, n3)
-    splice!(list, n2)
+    #push!(list, n2, n3)
+    push!(list, n2)
+    @test all([x for x in list] .=== [n1, n2])
+    push!(list, n3)
+    @test all([x for x in list] .=== [n1, n2, n3])
+    delete!(list, n2)
     @test all([x for x in list] .=== [n1, n3])
 end
 
-@testset "accessors" begin
+@testset "accessors $ListType" for ListType in list_types
     # TODO: isempty, length, in, indexin, first, last
-    @test eltype(IntrusiveList{IntrusiveListNode{Int64}}) == IntrusiveListNode{Int64}
-
-    list = IntrusiveList{IntrusiveListNode{Int}}()
-    n1 = IntrusiveListNode(1)
-    n2 = IntrusiveListNode(2)
+    NodeType = eltype(ListType)
+    list = ListType()
+    n1 = NodeType(1)
+    n2 = NodeType(2)
     @test_throws BoundsError first(list)
     @test_throws BoundsError last(list)
     push!(list, n1)
@@ -150,14 +161,16 @@ end
 # keys
 
 # TODO: test empty list
-@testset "iteration" begin
-    list = IntrusiveList{IntrusiveListNode{Int64}}()
-    pushfirst!(list, IntrusiveListNode(1))
-    pushfirst!(list, IntrusiveListNode(2))
-    pushfirst!(list, IntrusiveListNode(3))
+@testset "iteration $ListType" for ListType in list_types
+    NodeType = eltype(ListType)
+    list = ListType()
+    pushfirst!(list, NodeType(1))
+    pushfirst!(list, NodeType(2))
+    pushfirst!(list, NodeType(3))
     @test [x.value for x in list] == [3, 2, 1]
 end
 
+# TODO: slist variant
 @testset "tags" begin
     a = TaggedIntrusiveList{MultiTagListNode, :a}()
     b = TaggedIntrusiveList{MultiTagListNode, :b}()

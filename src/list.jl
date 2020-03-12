@@ -43,7 +43,7 @@ end
 
 # TODO: show(), print like vector, in compact: only first n elements
 mutable struct TaggedIntrusiveList{T, Tag}
-    root::Union{T, Nothing}
+    head::Union{T, Nothing}
 
     TaggedIntrusiveList{T, Tag}() where {T, Tag} = new(nothing)
 end
@@ -56,8 +56,8 @@ end
 
 Base.eltype(::Type{TaggedIntrusiveList{T, Tag}}) where {T, Tag} = T
 
-@inline Base.isempty(list::TaggedIntrusiveList) = isnothing(list.root)
-@inline Base.empty!(list::TaggedIntrusiveList) = list.root = nothing
+@inline Base.isempty(list::TaggedIntrusiveList) = isnothing(list.head)
+@inline Base.empty!(list::TaggedIntrusiveList) = list.head = nothing
 
 function Base.length(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
     c = 0
@@ -69,42 +69,42 @@ end
 
 @inline function Base.iterate(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
     isempty(list) && return nothing
-    root = list.root::T
-    (root, root)
+    head = list.head::T
+    (head, head)
 end
 
 @inline function Base.iterate(list::TaggedIntrusiveList{T, Tag}, state::T) where {T, Tag}
     x = getnext(state, Tag)::T
-    x === list.root ? nothing : (x, x)
+    x === list.head ? nothing : (x, x)
 end
 
 @inline function Base.first(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
     @boundscheck checkbounds(list)
-    list.root::T
+    list.head::T
 end
 
 @inline function Base.last(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
     @boundscheck checkbounds(list)
-    getprev(list.root::T, Tag)::T
+    getprev(list.head::T, Tag)::T
 end
 
 
 function Base.push!(list::TaggedIntrusiveList{T, Tag}, node::T) where {T, Tag}
     if isempty(list)
         setnextprevself!(node, Tag)
-        list.root = node
+        list.head = node
     else
-        circlist_link_before!(list.root::T, node, Tag)
+        circlist_link_before!(list.head::T, node, Tag)
     end
     list
 end
 
 function Base.pop!(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
     isempty(list) && throw(ArgumentError("list must be non-empty"))
-    root = list.root::T
-    tail = getprev(root, Tag)::T
+    head = list.head::T
+    tail = getprev(head, Tag)::T
     if circlist_unlink!(tail, Tag) === tail
-        list.root = nothing
+        list.head = nothing
     end
     tail
 end
@@ -113,27 +113,28 @@ function Base.pushfirst!(list::TaggedIntrusiveList{T, Tag}, node::T) where {T, T
     if isempty(list)
         setnextprevself!(node, Tag)
     else
-        circlist_link_before!(list.root::T, node, Tag)
+        circlist_link_before!(list.head::T, node, Tag)
     end
-    list.root = node
+    list.head = node
     list
 end
 
 function Base.popfirst!(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
     isempty(list) && throw(ArgumentError("list must be non-empty"))
-    root = list.root::T
-    new_root = circlist_unlink!(root, Tag)
-    list.root = root === new_root ? nothing : new_root
-    root
+    head = list.head::T
+    new_head = circlist_unlink!(head, Tag)
+    list.head = head === new_head ? nothing : new_head
+    head
 end
 
-function Base.splice!(list::TaggedIntrusiveList{T, Tag}, at::T) where {T, Tag}
-    at_next = circlist_unlink!(at, Tag)
-    if at === list.root
-        if at_next === at
-            list.root = nothing
+# TODO: implement deleteafter!
+function Base.delete!(list::TaggedIntrusiveList{T, Tag}, node::T) where {T, Tag}
+    node_next = circlist_unlink!(node, Tag)
+    if node === list.head
+        if node_next === node
+            list.head = nothing
         else
-            list.root = at_next
+            list.head = node_next
         end
     end
     list
