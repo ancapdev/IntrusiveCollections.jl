@@ -172,6 +172,22 @@ end
 end
 
 @testset "output" begin
+    list = IntrusiveList{IntrusiveListNode{Int}}()
+    @test "$list" == "[]"
+    push!(list, IntrusiveListNode(1))
+    @test "$list" == "[1]"
+    push!(list, IntrusiveListNode(2))
+    @test "$list" == "[1↔2]"
+    push!(list, IntrusiveListNode(3))
+    @test "$list" == "[1↔2↔3]"
+    list = IntrusiveSList{IntrusiveSListNode{Int}}()
+    @test "$list" == "[]"
+    push!(list, IntrusiveSListNode(1))
+    @test "$list" == "[1]"
+    push!(list, IntrusiveSListNode(2))
+    @test "$list" == "[1→2]"
+    push!(list, IntrusiveSListNode(3))
+    @test "$list" == "[1→2→3]"
 end
 
 end
