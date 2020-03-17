@@ -11,5 +11,7 @@ end
 
 IntrusiveSListNode(value::T) where {T} = IntrusiveSListNode{T}(value)
 
+Base.show(io::IO, x::IntrusiveSListNode) = show(io, x.value)
+
 @inline getnext(x::IntrusiveSListNode) = x.next
 @inline setnext!(x::IntrusiveSListNode{T}, next::IntrusiveSListNode{T}) where {T} = x.next = next

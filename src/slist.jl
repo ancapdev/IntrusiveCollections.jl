@@ -24,6 +24,17 @@ function Base.length(list::TaggedIntrusiveSList{T, Tag}) where {T, Tag}
     c
 end
 
+function Base.show(io::IO, list::TaggedIntrusiveSList)
+    first = true
+    print(io, "[")
+    for x in list
+        !first && print(io, "→")
+        first = false
+        print(io, x)
+    end
+    print(io, "]")
+end
+
 @inline function Base.iterate(list::TaggedIntrusiveSList{T, Tag}) where {T, Tag}
     isempty(list) && return nothing
     tail = list.tail::T

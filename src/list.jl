@@ -1,4 +1,3 @@
-# TODO: show(), print like vector, in compact: only first n elements
 mutable struct TaggedIntrusiveList{T, Tag}
     head::Union{T, Nothing}
 
@@ -22,6 +21,17 @@ function Base.length(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
         c += 1
     end
     c
+end
+
+function Base.show(io::IO, list::TaggedIntrusiveList)
+    first = true
+    print(io, "[")
+    for x in list
+        !first && print(io, "↔")
+        first = false
+        print(io, x)
+    end
+    print(io, "]")
 end
 
 @inline function Base.iterate(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
