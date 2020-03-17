@@ -17,47 +17,14 @@ mutable struct MultiTagListNode
     end
 end
 
-@inline function IntrusiveCollections.setnext!(x::MultiTagListNode, next::MultiTagListNode, tag::Symbol)
-    if tag == :a
-        x.next_a = next
-    elseif tag == :b
-        x.next_b = next
-    else
-        throw(ArgumentError("Tag must be :a or :b"))
-    end
-    nothing
-end
-
-@inline function IntrusiveCollections.setprev!(x::MultiTagListNode, prev::MultiTagListNode, tag::Symbol)
-    if tag == :a
-        x.prev_a = prev
-    elseif tag == :b
-        x.prev_b = prev
-    else
-        throw(ArgumentError("Tag must be :a or :b"))
-    end
-    nothing
-end
-
-@inline function IntrusiveCollections.getnext(x::MultiTagListNode, tag::Symbol)
-    if tag == :a
-        return x.next_a
-    elseif tag == :b
-        return x.next_b
-    else
-        throw(ArgumentError("Tag must be :a or :b"))
-    end
-end
-
-@inline function IntrusiveCollections.getprev(x::MultiTagListNode, tag::Symbol)
-    if tag == :a
-        return x.prev_a
-    elseif tag == :b
-        return x.prev_b
-    else
-        throw(ArgumentError("Tag must be :a or :b"))
-    end
-end
+IntrusiveCollections.setnext!(x::MultiTagListNode, next::MultiTagListNode, ::Val{:a}) = x.next_a = next
+IntrusiveCollections.setnext!(x::MultiTagListNode, next::MultiTagListNode, ::Val{:b}) = x.next_b = next
+IntrusiveCollections.setprev!(x::MultiTagListNode, prev::MultiTagListNode, ::Val{:a}) = x.prev_a = prev
+IntrusiveCollections.setprev!(x::MultiTagListNode, prev::MultiTagListNode, ::Val{:b}) = x.prev_b = prev
+IntrusiveCollections.getnext(x::MultiTagListNode, ::Val{:a}) = x.next_a
+IntrusiveCollections.getnext(x::MultiTagListNode, ::Val{:b}) = x.next_b
+IntrusiveCollections.getprev(x::MultiTagListNode, ::Val{:a}) = x.prev_a
+IntrusiveCollections.getprev(x::MultiTagListNode, ::Val{:b}) = x.prev_b
 
 list_types = [
     IntrusiveList{IntrusiveListNode{Int}},

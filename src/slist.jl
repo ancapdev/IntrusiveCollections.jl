@@ -1,29 +1,3 @@
-mutable struct IntrusiveSListNode{T}
-    value::T
-    next::IntrusiveSListNode{T}
-
-    function IntrusiveSListNode{T}(value::T) where {T}
-        x = new{T}(value)
-        x.next = x
-        x
-    end
-end
-
-IntrusiveSListNode(value::T) where {T} = IntrusiveSListNode{T}(value)
-
-@inline getnext(x::IntrusiveSListNode, tag::Symbol) = x.next
-@inline setnext!(x::IntrusiveSListNode{T}, next::IntrusiveSListNode{T}, tag::Symbol) where {T} = x.next = next
-
-@inline function circslist_prev(node::T, start::T, tag::Symbol) where {T}
-    prev = start
-    x = getnext(start, tag)::T
-    while x !== node
-        prev = x
-        x = getnext(x, tag)::T
-    end
-    prev
-end
-
 mutable struct TaggedIntrusiveSList{T, Tag}
     tail::Union{T, Nothing}
 
@@ -53,7 +27,7 @@ end
 @inline function Base.iterate(list::TaggedIntrusiveSList{T, Tag}) where {T, Tag}
     isempty(list) && return nothing
     tail = list.tail::T
-    head = getnext(tail, Tag)::T
+    head = getnext(tail, Val{Tag}())::T
     (head, head)
 end
 
@@ -61,14 +35,14 @@ end
     if state === list.tail
         nothing
     else
-        x = getnext(state, Tag)::T
+        x = getnext(state, Val{Tag}())::T
         (x, x)
     end
 end
 
 @inline function Base.first(list::TaggedIntrusiveSList{T, Tag}) where {T, Tag}
     @boundscheck checkbounds(list)
-    getnext(list.tail::T, Tag)::T
+    getnext(list.tail::T, Val{Tag}())::T
 end
 
 @inline function Base.last(list::TaggedIntrusiveSList{T, Tag}) where {T, Tag}
@@ -78,13 +52,13 @@ end
 
 function Base.push!(list::TaggedIntrusiveSList{T, Tag}, node::T) where {T, Tag}
     if isempty(list)
-        setnext!(node, node, Tag)
+        setnext!(node, node, Val{Tag}())
         list.tail = node
     else
         tail = list.tail::T
-        head = getnext(tail, Tag)::T
-        setnext!(tail, node, Tag)
-        setnext!(node, head, Tag)
+        head = getnext(tail, Val{Tag}())::T
+        setnext!(tail, node, Val{Tag}())
+        setnext!(node, head, Val{Tag}())
         list.tail = node
     end
     list
@@ -93,12 +67,12 @@ end
 function Base.pop!(list::TaggedIntrusiveSList{T, Tag}) where {T, Tag}
     isempty(list) && throw(ArgumentError("slist must be non-empty"))
     tail = list.tail::T
-    head = getnext(tail, Tag)::T
+    head = getnext(tail, Val{Tag}())::T
     if head === tail
         list.tail = nothing
     else
-        prev = circslist_prev(tail, head, Tag)
-        setnext!(prev, head, Tag)
+        prev = circslist_prev(tail, head, Val{Tag}())
+        setnext!(prev, head, Val{Tag}())
         list.tail = prev
     end
     tail
@@ -106,13 +80,13 @@ end
 
 function Base.pushfirst!(list::TaggedIntrusiveSList{T, Tag}, node::T) where {T, Tag}
     if isempty(list)
-        setnext!(node, node, Tag)
+        setnext!(node, node, Val{Tag}())
         list.tail = node
     else
         tail = list.tail::T
-        head = getnext(tail, Tag)::T
-        setnext!(tail, node, Tag)
-        setnext!(node, head, Tag)
+        head = getnext(tail, Val{Tag}())::T
+        setnext!(tail, node, Val{Tag}())
+        setnext!(node, head, Val{Tag}())
     end
     list
 end
@@ -120,18 +94,18 @@ end
 function Base.popfirst!(list::TaggedIntrusiveSList{T, Tag}) where {T, Tag}
     isempty(list) && throw(ArgumentError("slist must be non-empty"))
     tail = list.tail::T
-    head = getnext(tail, Tag)::T
+    head = getnext(tail, Val{Tag}())::T
     if head === tail
         list.tail = nothing
     else
-        setnext!(tail, getnext(head, Tag)::T, Tag)
+        setnext!(tail, getnext(head, Val{Tag}())::T, Val{Tag}())
     end
     head
 end
 
 function deleteafter!(list::TaggedIntrusiveSList{T, Tag}, node::T) where {T, Tag}
-    next = getnext(node, Tag)::T
-    setnext!(node, getnext(next, Tag)::T, Tag)
+    next = getnext(node, Val{Tag}())::T
+    setnext!(node, getnext(next, Val{Tag}())::T, Val{Tag}())
     if next === list.tail
         if next === node
             list.tail = nothing
@@ -144,7 +118,7 @@ end
 
 function Base.delete!(list::TaggedIntrusiveSList{T, Tag}, node::T) where {T, Tag}
     @boundscheck checkbounds(list)
-    prev = circslist_prev(node, list.tail::T, Tag)
+    prev = circslist_prev(node, list.tail::T, Val{Tag}())
     deleteafter!(list, prev)
     list
 end
