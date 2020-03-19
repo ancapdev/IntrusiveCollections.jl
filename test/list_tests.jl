@@ -98,12 +98,28 @@ end
     pushfirst!(list, n1)
     delete!(list, n2)
     @test all([x for x in list] .=== [n1])
-    #push!(list, n2, n3)
-    push!(list, n2)
-    @test all([x for x in list] .=== [n1, n2])
-    push!(list, n3)
-    @test all([x for x in list] .=== [n1, n2, n3])
+    push!(list, n2, n3)
     delete!(list, n2)
+    @test all([x for x in list] .=== [n1, n3])
+end
+
+@testset "deleteafter $ListType" for ListType in list_types
+    NodeType = eltype(ListType)
+    list = ListType()
+    n1 = NodeType(1)
+    n2 = NodeType(2)
+    n3 = NodeType(3)
+    push!(list, n1)
+    deleteafter!(list, n1)
+    @test isempty(list)
+    push!(list, n1, n2)
+    deleteafter!(list, n2)
+    @test all([x for x in list] .=== [n2])
+    pushfirst!(list, n1)
+    deleteafter!(list, n1)
+    @test all([x for x in list] .=== [n1])
+    push!(list, n2, n3)
+    deleteafter!(list, n1)
     @test all([x for x in list] .=== [n1, n3])
 end
 
@@ -123,24 +139,20 @@ end
     @test last(list) === n2
 end
 
-# getindex, setindex!, lastindex, insert!, deleteat!, splice!
-# findfirst, indextoposition, positiontoindex
-# keys
-
-# TODO: test empty list
 @testset "iteration $ListType" for ListType in list_types
     NodeType = eltype(ListType)
     list = ListType()
+    @test isempty(collect(list))
+    @test typeof(collect(list)) == Vector{NodeType}
     pushfirst!(list, NodeType(1))
     pushfirst!(list, NodeType(2))
     pushfirst!(list, NodeType(3))
     @test [x.value for x in list] == [3, 2, 1]
 end
 
-# TODO: slist variant
-@testset "tags" begin
-    a = TaggedIntrusiveList{MultiTagListNode, :a}()
-    b = TaggedIntrusiveList{MultiTagListNode, :b}()
+@testset "tags $ListType" for ListType in (TaggedIntrusiveList, TaggedIntrusiveSList)
+    a = ListType{MultiTagListNode, :a}()
+    b = ListType{MultiTagListNode, :b}()
     n1 = MultiTagListNode(1)
     n2 = MultiTagListNode(2)
     n3 = MultiTagListNode(3)

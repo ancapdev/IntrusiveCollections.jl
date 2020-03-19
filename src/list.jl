@@ -94,7 +94,6 @@ function Base.popfirst!(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
     head
 end
 
-# TODO: implement deleteafter!
 function Base.delete!(list::TaggedIntrusiveList{T, Tag}, node::T) where {T, Tag}
     node_next = circlist_unlink!(node, Val{Tag}())
     if node === list.head
@@ -105,4 +104,8 @@ function Base.delete!(list::TaggedIntrusiveList{T, Tag}, node::T) where {T, Tag}
         end
     end
     list
+end
+
+function deleteafter!(list::TaggedIntrusiveList{T, Tag}, node::T) where {T, Tag}
+    delete!(list, getnext(node, Val{Tag}())::T)
 end
