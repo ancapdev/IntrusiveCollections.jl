@@ -14,8 +14,3 @@ end
 IntrusiveListNode(value::T) where {T} = IntrusiveListNode{T}(value)
 
 Base.show(io::IO, x::IntrusiveListNode) = show(io, x.value)
-
-@inline getnext(x::IntrusiveListNode) = x.next
-@inline getprev(x::IntrusiveListNode) = x.prev
-@inline setnext!(x::IntrusiveListNode{T}, next::IntrusiveListNode{T}) where {T} = x.next = next
-@inline setprev!(x::IntrusiveListNode{T}, prev::IntrusiveListNode{T}) where {T} = x.prev = prev
