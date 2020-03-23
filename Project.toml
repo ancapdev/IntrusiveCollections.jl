@@ -1,7 +1,7 @@
 name = "IntrusiveCollections"
 uuid = "fe54b08b-4815-4b70-8b1a-a3021f4307e7"
 authors = ["Christian Rorvik <christian.rorvik@gmail.com>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [compat]
 julia = "1.2"
