@@ -109,3 +109,21 @@ end
 function deleteafter!(list::TaggedIntrusiveList{T, Tag}, node::T) where {T, Tag}
     delete!(list, getnext(node, Val{Tag}())::T)
 end
+
+function Base.append!(list::TaggedIntrusiveList{T, Tag}, list2::TaggedIntrusiveList{T, Tag}) where {T, Tag}
+    isempty(list2) && return list
+    if isempty(list)
+        list.head = list2.head::T
+    else
+        head1 = list.head::T
+        tail1 = getprev(head1, Val{Tag}())::T
+        head2 = list2.head::T
+        tail2 = getprev(head2, Val{Tag}())::T
+        setnext!(tail1, head2, Val{Tag}())
+        setprev!(head2, tail1, Val{Tag}())
+        setnext!(tail2, head1, Val{Tag}())
+        setprev!(head1, tail2, Val{Tag}())
+    end
+    list2.head = nothing
+    list
+end

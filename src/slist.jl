@@ -133,3 +133,18 @@ function Base.delete!(list::TaggedIntrusiveSList{T, Tag}, node::T) where {T, Tag
     deleteafter!(list, prev)
     list
 end
+
+function Base.append!(list::TaggedIntrusiveSList{T, Tag}, list2::TaggedIntrusiveSList{T, Tag}) where {T, Tag}
+    isempty(list2) && return list
+    if !isempty(list)
+        tail = list.tail::T
+        tail2 = list2.tail::T
+        head = getnext(tail, Val{Tag}())::T
+        head2 = getnext(tail2, Val{Tag}())::T
+        setnext!(tail, head2, Val{Tag}())
+        setnext!(tail2, head, Val{Tag}())
+    end
+    list.tail = list2.tail::T
+    list2.tail = nothing
+    list
+end

@@ -123,6 +123,63 @@ end
     @test all([x for x in list] .=== [n1, n3])
 end
 
+@testset "append $ListType" for ListType in list_types
+    NodeType = eltype(ListType)
+    list1 = ListType()
+    list2 = ListType()
+    n1 = NodeType(1)
+    n2 = NodeType(2)
+    n3 = NodeType(3)
+    n4 = NodeType(4)
+    # empty -> empty
+    append!(list1, list2)
+    @test isempty(list1)
+    @test isempty(list2)
+    # empty -> [1]
+    push!(list2, n1)
+    append!(list1, list2)
+    @test isempty(list2)
+    @test all([x for x in list1] .=== [n1])
+    # empty -> [1, 2]
+    list1 = ListType()
+    list2 = ListType()
+    push!(list2, n1, n2)
+    append!(list1, list2)
+    @test isempty(list2)
+    @test all([x for x in list1] .=== [n1, n2])
+    # [1] -> empty
+    list1 = ListType()
+    list2 = ListType()
+    push!(list1, n1)
+    append!(list1, list2)
+    @test isempty(list2)
+    @test all([x for x in list1] .=== [n1])
+    # [1] -> [2]
+    list1 = ListType()
+    list2 = ListType()
+    push!(list1, n1)
+    push!(list2, n2)
+    append!(list1, list2)
+    @test isempty(list2)
+    @test all([x for x in list1] .=== [n1, n2])
+    # [1, 2] -> [3]
+    list1 = ListType()
+    list2 = ListType()
+    push!(list1, n1, n2)
+    push!(list2, n3)
+    append!(list1, list2)
+    @test isempty(list2)
+    @test all([x for x in list1] .=== [n1, n2, n3])
+    # [1, 2] -> [3, 4]
+    list1 = ListType()
+    list2 = ListType()
+    push!(list1, n1, n2)
+    push!(list2, n3, n4)
+    append!(list1, list2)
+    @test isempty(list2)
+    @test all([x for x in list1] .=== [n1, n2, n3, n4])
+end
+
 @testset "accessors $ListType" for ListType in list_types
     # TODO: isempty, length, in, indexin, first, last
     NodeType = eltype(ListType)
