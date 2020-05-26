@@ -2,7 +2,7 @@ module IntrusiveCollections
 
 export TaggedIntrusiveList, IntrusiveList, IntrusiveListNode
 export TaggedIntrusiveSList, IntrusiveSList, IntrusiveSListNode
-export deleteafter!
+export deleteafter!, insertafter!
 
 include("api.jl")
 include("utility.jl")

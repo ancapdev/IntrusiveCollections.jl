@@ -123,6 +123,19 @@ end
     @test all([x for x in list] .=== [n1, n3])
 end
 
+@testset "insertafter $ListType" for ListType in list_types
+    NodeType = eltype(ListType)
+    list = ListType()
+    n1 = NodeType(1)
+    n2 = NodeType(2)
+    n3 = NodeType(3)
+    push!(list, n1)
+    insertafter!(list, n1, n2)
+    @test all([x for x in list] .=== [n1, n2])
+    insertafter!(list, n1, n3)
+    @test all([x for x in list] .=== [n1, n3, n2])
+end
+
 @testset "append $ListType" for ListType in list_types
     NodeType = eltype(ListType)
     list1 = ListType()

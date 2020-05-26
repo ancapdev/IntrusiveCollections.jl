@@ -127,6 +127,16 @@ function deleteafter!(list::TaggedIntrusiveSList{T, Tag}, node::T) where {T, Tag
     list
 end
 
+function insertafter!(list::TaggedIntrusiveSList{T, Tag}, after::T, node::T) where {T, Tag}
+    next = getnext(after, Val{Tag}())::T
+    setnext!(after, node, Val{Tag}())
+    setnext!(node, next, Val{Tag}())
+    if after === list.tail
+        list.tail = node
+    end
+    list
+end
+
 function Base.delete!(list::TaggedIntrusiveSList{T, Tag}, node::T) where {T, Tag}
     @boundscheck checkbounds(list)
     prev = circslist_prev(node, list.tail::T, Val{Tag}())

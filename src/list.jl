@@ -110,6 +110,12 @@ function deleteafter!(list::TaggedIntrusiveList{T, Tag}, node::T) where {T, Tag}
     delete!(list, getnext(node, Val{Tag}())::T)
 end
 
+function insertafter!(list::TaggedIntrusiveList{T, Tag}, after::T, node::T) where {T, Tag}
+    next = getnext(after, Val{Tag}())::T
+    circlist_link_before!(next, node, Val{Tag}())
+    list
+end
+
 function Base.append!(list::TaggedIntrusiveList{T, Tag}, list2::TaggedIntrusiveList{T, Tag}) where {T, Tag}
     isempty(list2) && return list
     if isempty(list)
