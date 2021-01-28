@@ -59,7 +59,7 @@ list_types = [
     @test all([x for x in list] .=== [n1])
     @test pop!(list) === n1
     @test isempty(list)
-    @test_throws ArgumentError pop!(list)
+    @test_throws BoundsError pop!(list)
 end
 
 @testset "empty $ListType" for ListType in list_types

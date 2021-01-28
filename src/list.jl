@@ -6,7 +6,7 @@ end
 
 const IntrusiveList{T} = TaggedIntrusiveList{T, :default}
 
-@inline function checkbounds(list::IntrusiveList)
+@inline function checkbounds(list::TaggedIntrusiveList)
     isempty(list) && throw(BoundsError(list))
 end
 
@@ -67,7 +67,7 @@ function Base.push!(list::TaggedIntrusiveList{T, Tag}, node::T) where {T, Tag}
 end
 
 function Base.pop!(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
-    isempty(list) && throw(ArgumentError("list must be non-empty"))
+    @boundscheck checkbounds(list)
     head = list.head::T
     tail = getprev(head, Val{Tag}())::T
     if circlist_unlink!(tail, Val{Tag}()) === tail
@@ -87,7 +87,7 @@ function Base.pushfirst!(list::TaggedIntrusiveList{T, Tag}, node::T) where {T, T
 end
 
 function Base.popfirst!(list::TaggedIntrusiveList{T, Tag}) where {T, Tag}
-    isempty(list) && throw(ArgumentError("list must be non-empty"))
+    @boundscheck checkbounds(list)
     head = list.head::T
     new_head = circlist_unlink!(head, Val{Tag}())
     list.head = head === new_head ? nothing : new_head
